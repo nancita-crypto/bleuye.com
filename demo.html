@@ -1,0 +1,282 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex">
+<script>try{if(sessionStorage.getItem('bleuye-demo')!=='1')location.replace('login.html')}catch(_){}</script>
+<title>Bleuye Store App</title><link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a neutral store-admin shell (fixed top bar + locked left nav); Bleuye appears as an embedded app inside orders, order detail, checkout and settings */
+:root{
+  --bg:#F1F2F4; --panel:#FFFFFF; --ink:#1A1C1F; --muted:#616A75; --line:#E1E3E6; --chrome:#1C1F24; --chrome-ink:#D6D9DE;
+  --blue:#1739C9; --blue-2:#2F55E0; --sky:#DCE4FB;
+  --ok:#0F7A4E; --ok-bg:#DDF5E8; --warn:#8A5A00; --warn-bg:#FFF1CC; --bad:#B42318; --bad-bg:#FDE4E1;
+  --display:'Bricolage Grotesque','Trebuchet MS',sans-serif; --body:'Figtree',system-ui,Arial,sans-serif; --mono:'JetBrains Mono','Courier New',monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111317; --panel:#1B1E24; --ink:#ECEEF1; --muted:#A0A8B4; --line:#2C3038; --chrome:#08090B; --chrome-ink:#C5C9D0;
+  --blue:#9DB8FF; --blue-2:#6E8FF0; --sky:#1C2A55;
+  --ok:#7EE0B0; --ok-bg:#0F3324; --warn:#F6D58A; --warn-bg:#3A2C08; --bad:#FF9A8F; --bad-bg:#3D1512; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111317; --panel:#1B1E24; --ink:#ECEEF1; --muted:#A0A8B4; --line:#2C3038; --chrome:#08090B; --chrome-ink:#C5C9D0;
+  --blue:#9DB8FF; --blue-2:#6E8FF0; --sky:#1C2A55;
+  --ok:#7EE0B0; --ok-bg:#0F3324; --warn:#F6D58A; --warn-bg:#3A2C08; --bad:#FF9A8F; --bad-bg:#3D1512; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--chrome);color:var(--chrome-ink);display:flex;align-items:center;gap:16px;height:52px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.store{display:flex;align-items:center;gap:10px;font-weight:600;color:#fff}
+.store .dot{width:26px;height:26px;border-radius:7px;background:#3A6B4F;display:grid;place-items:center;font-size:13px}
+.search{flex:1;max-width:460px;background:#2B2F36;border-radius:8px;padding:7px 12px;color:#9AA1AC;font-size:13px}
+.note{font-size:11px;color:#9AA1AC;margin-left:auto}
+.logout{all:unset;cursor:pointer;font-size:13px;font-weight:600;color:#fff;border:1px solid #3A3F48;border-radius:8px;padding:6px 12px;white-space:nowrap}
+.logout:hover{background:#2B2F36}
+.logout:focus-visible{outline:2px solid #9DB8FF;outline-offset:2px}
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr)}
+aside.nav{position:sticky;top:52px;height:calc(100vh - 52px);height:calc(100dvh - 52px);overflow-y:auto;background:var(--bg);border-right:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.nav button{all:unset;cursor:pointer;padding:7px 10px;border-radius:8px;color:var(--ink);font-weight:500;display:flex;gap:8px;align-items:center}
+.nav button:hover{background:var(--line)}
+.nav button[aria-current="page"]{background:var(--panel);font-weight:700;box-shadow:0 1px 0 var(--line)}
+.nav .sec{font-size:11px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:14px 10px 4px}
+.nav .app{color:var(--blue)}
+.cube{width:16px;height:16px;flex:none}
+main{padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0;max-width:1180px}
+h1{font-size:22px;margin:0;font-weight:700}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:4px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;min-width:0}
+.card .hd{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.card .bd{padding:16px}
+.app-card{border:1.5px solid var(--blue-2)}
+.app-hd{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:700;font-size:16px;color:var(--blue)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr{cursor:pointer} tbody tr:hover{background:var(--bg)}
+tbody tr:focus-visible{outline:2px solid var(--blue-2);outline-offset:-2px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)} .chip.warn{background:var(--warn-bg);color:var(--warn)} .chip.bad{background:var(--bad-bg);color:var(--bad)} .chip.mute{background:var(--line);color:var(--muted)} .chip.info{background:var(--sky);color:var(--blue)}
+.cols{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px;margin-top:16px}
+.stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+.item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.thumb{width:44px;height:44px;border-radius:8px;background:var(--sky);display:grid;place-items:center;flex:none}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-variant-numeric:tabular-nums}
+.kv span:first-child{color:var(--muted)}
+.decision{border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.decision.ok{background:var(--ok-bg)} .decision.warn{background:var(--warn-bg)} .decision.bad{background:var(--bad-bg)}
+.decision .t{font-family:var(--display);font-weight:700;font-size:20px}
+.decision.ok .t{color:var(--ok)} .decision.warn .t{color:var(--warn)} .decision.bad .t{color:var(--bad)}
+.rates{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.rate{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.rate input{accent-color:var(--blue)}
+.rate .p{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.rate.sel{border-color:var(--blue-2);background:var(--sky)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:8px 14px;font:600 13px var(--body);cursor:pointer}
+.btn.primary{background:var(--chrome);color:#fff;border-color:var(--chrome)}
+.btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+:root[data-theme="dark"] .btn.blue{color:#0A1650}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.blue{color:#0A1650}}
+.btn:focus-visible{outline:2px solid var(--blue-2);outline-offset:2px}
+.toast{min-height:18px;font-size:13px;color:var(--ok);margin-top:8px}
+.sms{background:var(--bg);border-radius:14px;padding:10px 12px;font-size:13px;max-width:320px}
+.mini-label{font-size:11px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.checkout{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.checkout .row{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.checkout .row:last-child{border-bottom:0}
+.checkout .row.sel{background:var(--sky)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.switch{display:inline-flex;align-items:center;gap:8px}
+select{font:500 14px var(--body);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.view[hidden]{display:none!important}
+@media (max-width:900px){.shell{grid-template-columns:1fr} aside.nav{position:sticky;top:52px;height:auto;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);z-index:9} .nav .sec{display:none} .cols,.grid2{grid-template-columns:1fr} .search,.note{display:none} .logout{margin-left:auto}}
+</style></head><body>
+
+<header class="topbar">
+  <div class="store"><span class="dot">W</span>Westside Pharmacy</div>
+  <div class="search">Search orders, products and apps</div>
+  <div class="note">Illustration of Bleuye's planned Shopify app · mock data</div>
+  <button class="logout" id="logout">Log out</button>
+</header>
+
+<div class="shell">
+<aside class="nav" aria-label="Store navigation">
+  <button data-view="orders" aria-current="page">Orders</button>
+  <button data-view="order">Order #1042</button>
+  <button data-view="checkout">Checkout preview</button>
+  <div class="sec">Apps</div>
+  <button data-view="settings" class="app"><svg class="cube" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 28 10C23.5 10.6 18.8 12.6 16 17 13.2 12.6 8.5 10.6 4 10Z" fill="#9DB8FF"/><path d="M4 10C8.5 10.6 13.2 12.6 16 17V30L4 23Z" fill="#2F55E0"/><path d="M28 10C23.5 10.6 18.8 12.6 16 17V30L28 23Z" fill="#0C24AC"/></svg>Bleuye</button>
+</aside>
+
+<main>
+<!-- ORDERS -->
+<section class="view" id="v-orders">
+  <div class="crumb">Orders</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px"><h1>Orders</h1><span class="chip info">Bleuye checked 6 cold orders today</span></div>
+  <div class="card">
+    <div class="tablewrap"><table>
+      <thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Items</th><th>Ship to</th><th>Total</th><th>Bleuye cold check</th></tr></thead>
+      <tbody id="orderRows"></tbody>
+    </table></div>
+  </div>
+  <p style="color:var(--muted);font-size:13px">Bleuye adds a column to your orders list. Cold items are detected from product tags; everything else ships as usual.</p>
+</section>
+
+<!-- ORDER DETAIL -->
+<section class="view" id="v-order" hidden>
+  <div class="crumb">Orders › #1042</div>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h1>#1042</h1><span class="chip mute">Paid</span><span class="chip warn">Unfulfilled</span></div>
+  <div class="cols">
+    <div class="stack">
+      <div class="card"><div class="hd"><strong>Unfulfilled (2)</strong><span class="chip info">2–8 °C</span></div><div class="bd">
+        <div class="item"><div class="thumb">💉</div><div style="flex:1;min-width:0"><div style="font-weight:600">Semaglutide vial 2 mL</div><div style="color:var(--muted);font-size:13px">Tag: cold-2-8 · Rx #RX-55120</div></div><div>×1</div></div>
+        <div class="item" style="border-bottom:0"><div class="thumb">🧴</div><div style="flex:1;min-width:0"><div style="font-weight:600">Bacteriostatic water 30 mL</div><div style="color:var(--muted);font-size:13px">Ambient · ships in the same box</div></div><div>×1</div></div>
+      </div></div>
+
+      <div class="card app-card">
+        <div class="hd"><span class="app-hd"><svg class="cube" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 28 10C23.5 10.6 18.8 12.6 16 17 13.2 12.6 8.5 10.6 4 10Z" fill="#9DB8FF"/><path d="M4 10C8.5 10.6 13.2 12.6 16 17V30L4 23Z" fill="#2F55E0"/><path d="M28 10C23.5 10.6 18.8 12.6 16 17V30L28 23Z" fill="#0C24AC"/></svg>Bleuye cold shipping</span>
+          <label class="switch mini-label">Ship day <select id="shipDay"><option value="tue">Tue</option><option value="thu">Thu</option><option value="fri">Fri</option></select></label></div>
+        <div class="bd">
+          <div class="decision" id="dBox"><span class="mini-label" id="dTag"></span><span class="t" id="dText"></span><span id="dWhy"></span></div>
+          <div class="grid2" style="margin-top:14px">
+            <div><div class="mini-label">Packaging</div>
+              <select id="packSel" style="width:100%;margin-top:6px"><option value="mini">Bleuye Mini 96 · holds 96 h</option><option value="own">Your EPS kit · holds 40 h</option></select></div>
+            <div><div class="mini-label">Route</div><div style="margin-top:8px;font-weight:600">Los Angeles → Seattle</div><div style="color:var(--muted);font-size:13px">212 logged ground trips · p95 52 h</div></div>
+          </div>
+          <div class="rates" id="rates"></div>
+          <div class="btns"><button class="btn blue" id="buy">Buy label</button><button class="btn" id="hold">Hold to Monday</button><button class="btn" id="report">View validation report</button></div>
+          <div class="toast" id="toast" role="status"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card"><div class="hd"><strong>Customer</strong></div><div class="bd">
+        <div style="font-weight:600">Sam R.</div><div style="color:var(--muted)">1418 Pine St, Seattle WA 98101</div>
+      </div></div>
+      <div class="card app-card"><div class="hd"><span class="app-hd">Patient texts</span><span class="chip ok">On</span></div><div class="bd">
+        <div class="mini-label" style="margin-bottom:8px">Sent in your pharmacy's name</div>
+        <div class="sms" id="smsText"></div>
+      </div></div>
+      <div class="card app-card"><div class="hd"><span class="app-hd">This order's impact</span></div><div class="bd">
+        <div class="kv"><span>Saved vs overnight</span><strong id="iSave"></strong></div>
+        <div class="kv"><span>CO₂e avoided</span><strong id="iCo2"></strong></div>
+        <div class="kv"><span>After delivery</span><strong id="iLoop"></strong></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKOUT -->
+<section class="view" id="v-checkout" hidden>
+  <div class="crumb">Online store › Checkout preview</div>
+  <h1>What your patient sees at checkout</h1>
+  <div class="cols">
+    <div class="card"><div class="bd">
+      <div class="mini-label" style="margin-bottom:10px">Shipping method</div>
+      <div class="checkout">
+        <div class="row sel"><input type="radio" checked name="co" id="co1" aria-label="Cold-ship ground"><div><div style="font-weight:700">Cold-ship · arrives Thursday</div><div style="color:var(--muted);font-size:13px">Kept 2–8 °C in a validated box, temperature logged the whole way</div></div><div style="margin-left:auto;font-weight:700">$24.00</div></div>
+        <div class="row"><input type="radio" name="co" id="co2" aria-label="Cold-ship overnight"><div><div style="font-weight:700">Cold-ship overnight · arrives tomorrow</div><div style="color:var(--muted);font-size:13px">For routes Bleuye hasn't validated for ground</div></div><div style="margin-left:auto;font-weight:700">$39.00</div></div>
+      </div>
+      <p style="color:var(--muted);font-size:13px">Bleuye only offers the ground option on routes it has validated for that product and season.</p>
+    </div></div>
+    <div class="card app-card"><div class="hd"><span class="app-hd">Why this works</span></div><div class="bd">
+      <div class="kv"><span>Patient pays (shipping)</span><strong>$24</strong></div>
+      <div class="kv"><span>Your cost on ground</span><strong>$16.93 + box</strong></div>
+      <div class="kv"><span>Your cost if flown</span><strong>$117.60 + foam</strong></div>
+      <p style="color:var(--muted);font-size:13px;margin:10px 0 0">UPS 2026 list rates, 3 lb, zone 5. Illustrative.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="view" id="v-settings" hidden>
+  <div class="crumb">Apps › Bleuye</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><h1>Bleuye</h1>
+    <div style="display:flex;gap:8px;align-items:center"><span class="chip info" id="planChip">Plug-in · $33/month</span><button class="btn" id="planBtn">Upgrade to full stack</button></div></div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card"><div class="hd"><strong>Cold products</strong><span style="color:var(--muted);font-size:13px">Synced from your catalog</span></div><div class="tablewrap"><table>
+      <thead><tr><th>Product</th><th>Range</th><th>Stability</th><th>Status</th></tr></thead>
+      <tbody style="cursor:default">
+        <tr><td>Semaglutide vial 2 mL</td><td>2–8 °C</td><td>Uploaded</td><td><span class="chip ok">Ready</span></td></tr>
+        <tr><td>Tirzepatide vial 2 mL</td><td>2–8 °C</td><td>Uploaded</td><td><span class="chip ok">Ready</span></td></tr>
+        <tr><td>NAD+ 10 mL</td><td>2–8 °C</td><td>Missing</td><td><span class="chip warn">Needs info</span></td></tr>
+      </tbody></table></div></div>
+    <div class="card"><div class="hd"><strong>Packaging</strong><button class="btn" id="upload">Upload spec</button></div><div class="tablewrap"><table>
+      <thead><tr><th>Packaging</th><th>Evidence</th><th>Summer hold</th></tr></thead>
+      <tbody style="cursor:default" id="packRows">
+        <tr><td>Your EPS kit 1.5"</td><td>Your lab report CU-0007</td><td>28 h</td></tr>
+        <tr><td>Bleuye Mini 96</td><td>VR-0244 · ISTA 7E</td><td>96 h</td></tr>
+      </tbody></table></div></div>
+    <div class="card"><div class="hd"><strong>Routes and carriers</strong></div><div class="bd">
+      <div class="kv"><span>Carrier account</span><strong>UPS · connected</strong></div>
+      <div class="kv"><span>Validated ground lanes</span><strong>14 from your origin</strong></div>
+      <div class="kv"><span>No Friday ground</span><strong>On</strong></div>
+      <div class="kv"><span>Unsupported shipments</span><strong>Flag for review</strong></div>
+    </div></div>
+    <div class="card"><div class="hd"><strong>Validation library</strong><span class="chip ok">6 reports</span></div><div class="bd">
+      <p style="margin:0 0 8px">Reports are stored once and reused for every new product and lane they cover.</p>
+      <div class="kv"><span>Decisions this month</span><strong>412</strong></div>
+      <div class="kv"><span>Moved from air to ground</span><strong>298</strong></div>
+      <div class="kv"><span>Sustainability report</span><strong>October ready</strong></div>
+    </div></div>
+  </div>
+  <div class="toast" id="setToast" role="status"></div>
+</section>
+</main>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  $('logout').addEventListener('click',()=>{try{sessionStorage.removeItem('bleuye-demo')}catch(_){} location.href='login.html';});
+  const ORDERS=[
+    ['#1042','Today 9:12','Sam R.','2','Seattle, WA','$289.00','ok','Ground ✓'],
+    ['#1041','Today 8:55','Priya K.','1','Phoenix, AZ','$249.00','ok','Ground ✓'],
+    ['#1040','Today 8:31','Dan M.','3','Chicago, IL','$412.00','ok','Ground ✓'],
+    ['#1039','Today 8:02','Lena O.','1','Boston, MA','$249.00','warn','Review · no lane data'],
+    ['#1038','Yesterday','Chris T.','2','Denver, CO','$319.00','mute','Ambient · no check'],
+    ['#1037','Yesterday','Ana G.','1','Miami, FL','$249.00','bad','Air · margin too short']
+  ];
+  $('orderRows').innerHTML=ORDERS.map(o=>`<tr tabindex="0" data-o="${o[0]}"><td><strong>${o[0]}</strong></td><td>${o[1]}</td><td>${o[2]}</td><td>${o[3]}</td><td>${o[4]}</td><td>${o[5]}</td><td><span class="chip ${o[6]}">${o[7]}</span></td></tr>`).join('');
+  document.querySelectorAll('#orderRows tr').forEach(tr=>{const go=()=>show('order');tr.addEventListener('click',go);tr.addEventListener('keydown',e=>{if(e.key==='Enter')go();});});
+
+  function show(v){
+    document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
+    document.querySelectorAll('.nav button').forEach(b=>{ if(b.dataset.view===v) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+
+  let rate='ground', full=false;
+  function render(){
+    const day=$('shipDay').value, pack=$('packSel').value;
+    const hold = pack==='mini'?96:40, transit = day==='fri'?100:52, margin=hold-transit;
+    let cls,tag,t,why;
+    if(day==='fri'){cls='warn';tag='Weekend in transit';t='Hold to Monday';why='A Friday ground pickup sits in a depot over the weekend. Bleuye suggests shipping Monday.';}
+    else if(margin>=12){cls='ok';tag='Validated for ground';t='UPS Ground · arrives Thu';why=`Box holds ${hold} h, route takes ~${transit} h: ${margin} h of margin.`;}
+    else {cls='bad';tag='Ground not supported';t='Ship overnight';why=`Your packaging holds ${hold} h but this route takes ~${transit} h. Use a Bleuye box to ship ground.`;}
+    $('dBox').className='decision '+cls; $('dTag').textContent=tag; $('dText').textContent=t; $('dWhy').textContent=why;
+    const groundOk = cls==='ok';
+    if(!groundOk && rate==='ground') rate='air';
+    const R=[['ground','UPS Ground','Thu, 2–6 pm',16.93,!groundOk],['air','UPS Next Day Air','Tomorrow by 10:30',117.60,false]];
+    $('rates').innerHTML=R.map(r=>`<label class="rate ${rate===r[0]?'sel':''}" style="${r[4]?'opacity:.5;cursor:not-allowed':''}"><input type="radio" name="rate" value="${r[0]}" ${rate===r[0]?'checked':''} ${r[4]?'disabled':''}><span><strong>${r[1]}</strong><br><span style="color:var(--muted);font-size:13px">${r[2]}${r[0]==='ground'&&groundOk?' · recommended':''}</span></span><span class="p">$${r[3].toFixed(2)}</span></label>`).join('');
+    document.querySelectorAll('input[name=rate]').forEach(i=>i.addEventListener('change',()=>{rate=i.value;render();}));
+    const ground = rate==='ground' && groundOk;
+    $('iSave').textContent = ground?'$100.67':'$0';
+    $('iCo2').textContent = ground?'1.6 kg':'0 kg';
+    $('iLoop').textContent = pack==='mini'?'Take-back at partner shop':'Single-use foam';
+    $('smsText').textContent = ground
+      ? 'Hi Sam, your cold order from Westside Pharmacy ships today by UPS Ground and arrives Thu, 2–6 pm. Not home? Reply 1 and we’ll hold it nearby.'
+      : day==='fri' ? 'Hi Sam, your cold order ships Monday so it never sits in a warm depot over the weekend.'
+      : 'Hi Sam, your cold order from Westside Pharmacy ships overnight and arrives tomorrow by 10:30 am.';
+    $('buy').textContent = 'Buy '+(rate==='ground'?'ground':'overnight')+' label';
+    $('toast').textContent='';
+  }
+  ['shipDay','packSel'].forEach(id=>$(id).addEventListener('change',render));
+  $('buy').addEventListener('click',()=>{$('toast').textContent='Label bought (mock). Tracking and the temperature log are attached to order #1042.';});
+  $('hold').addEventListener('click',()=>{$('shipDay').value='tue';render();$('toast').textContent='Moved to the next weekday pickup.';});
+  $('report').addEventListener('click',()=>{$('toast').textContent=$('packSel').value==='mini'?'VR-0244 · Bleuye Mini 96 · ISTA 7E summer · 96 h at 2–8 °C (mock).':'CU-0007 · your EPS kit · winter profile only · 40 h (mock).';});
+  $('planBtn').addEventListener('click',()=>{full=!full;$('planChip').textContent=full?'Full stack':'Plug-in · $33/month';$('planBtn').textContent=full?'Switch to plug-in':'Upgrade to full stack';$('setToast').textContent=full?'Full stack on: Bleuye boxes, validated shippers, tracking, sustainability reports and take-back.':'';});
+  $('upload').addEventListener('click',()=>{$('packRows').insertAdjacentHTML('beforeend','<tr><td>New liner kit (uploaded)</td><td>Pending review</td><td>—</td></tr>');$('setToast').textContent='Spec uploaded. Bleuye checks it against your routes and flags anything unsupported.';});
+  render();
+})();
+</script>
+</body></html>
