@@ -37,7 +37,7 @@ button:hover{background:#0F2470}
     crypto.subtle.digest('SHA-256',new TextEncoder().encode(u+':'+p)).then(function(h){
       if(hex(h)!==KEY){err.textContent='That username or password doesn’t match.';return;}
       try{sessionStorage.setItem('bleuye-demo','1')}catch(_){}
-      location.href='demo.html';
+      location.href='demos.html';
     });
   });
 })();

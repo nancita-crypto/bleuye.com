@@ -1,0 +1,291 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<script>try{if(sessionStorage.getItem('bleuye-demo')!=='1')location.replace('login.html')}catch(_){}</script>
+<title>Bleuye Route Desk</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: app shell — slim nav rail, decision form on the left, live verdict on the right, evidence library below */
+:root{
+  --bg:#F5F7FC; --panel:#FFFFFF; --ink:#0B1A2A; --muted:#5E6B78; --line:#E1E6F2;
+  --blue:#1739C9; --blue-2:#2F55E0; --sky:#DCE4FB; --navy:#0A1650;
+  --ok:#0F7A4E; --ok-bg:#DDF5E8; --warn:#8A5A00; --warn-bg:#FFF1CC; --bad:#B42318; --bad-bg:#FDE4E1;
+  --display:'Bricolage Grotesque','Trebuchet MS',sans-serif; --body:'Figtree',system-ui,Arial,sans-serif; --mono:'JetBrains Mono','Courier New',monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#070D24; --panel:#0F1834; --ink:#E8EDFB; --muted:#9AA6C8; --line:#22305C;
+  --blue:#9DB8FF; --blue-2:#6E8FF0; --sky:#1A2856; --navy:#050B1E;
+  --ok:#7EE0B0; --ok-bg:#0F3324; --warn:#F6D58A; --warn-bg:#3A2C08; --bad:#FF9A8F; --bad-bg:#3D1512; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#070D24; --panel:#0F1834; --ink:#E8EDFB; --muted:#9AA6C8; --line:#22305C;
+  --blue:#9DB8FF; --blue-2:#6E8FF0; --sky:#1A2856; --navy:#050B1E;
+  --ok:#7EE0B0; --ok-bg:#0F3324; --warn:#F6D58A; --warn-bg:#3A2C08; --bad:#FF9A8F; --bad-bg:#3D1512; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+nav{background:var(--navy);color:#C9D4F2;padding:22px 16px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh;height:100dvh;align-self:start;overflow-y:auto;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:20px;color:#fff;padding:0 8px 18px}
+nav a{color:#C9D4F2;text-decoration:none;padding:9px 12px;border-radius:10px;font-weight:500}
+nav a.on{background:#1739C9;color:#fff}
+nav .foot{margin-top:auto;font-size:12px;color:#8E9AC4;padding:8px}
+nav .exit{display:flex;flex-direction:column;gap:2px;border-top:1px solid #22305C;padding-top:10px}
+nav .exit button{all:unset;cursor:pointer;color:#C9D4F2;padding:9px 12px;border-radius:10px;font-weight:500}
+nav a:hover,nav .exit button:hover{background:rgba(255,255,255,.06)}
+nav a:focus-visible,nav .exit button:focus-visible{outline:2px solid #9DB8FF;outline-offset:2px}
+main{padding-block:24px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px;min-width:0;max-width:1240px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+h1{font-family:var(--display);font-size:32px;line-height:1.05;letter-spacing:-.02em;margin:4px 0 0;text-wrap:balance}
+.plan{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px}
+.plan button{border:0;background:none;color:var(--muted);font:600 13px var(--body);padding:8px 14px;border-radius:999px;cursor:pointer}
+.plan button[aria-pressed="true"]{background:var(--blue);color:#fff}
+:root[data-theme="dark"] .plan button[aria-pressed="true"]{color:var(--navy)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .plan button[aria-pressed="true"]{color:var(--navy)}}
+.mock{font-size:12px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}
+.card h2{font-family:var(--display);font-size:20px;margin:0 0 14px;letter-spacing:-.01em}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+label{font-size:12px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+select,input{font:500 15px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--blue-2);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.upload{display:flex;gap:10px;align-items:center;border:1px dashed var(--blue-2);border-radius:12px;padding:12px;font-size:13px;color:var(--muted)}
+.upload b{color:var(--ink)}
+.verdict{border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.verdict.ok{background:var(--ok-bg);color:var(--ok)} .verdict.warn{background:var(--warn-bg);color:var(--warn)} .verdict.bad{background:var(--bad-bg);color:var(--bad)}
+.verdict .v{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.02em}
+.verdict p{margin:0;color:var(--ink)}
+.margin{margin:18px 0 6px}
+.bar{position:relative;height:30px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.bar .hold{position:absolute;inset:0 auto 0 0;background:var(--sky)}
+.bar .transit{position:absolute;inset:6px auto 6px 0;background:var(--blue);border-radius:4px}
+.legend{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat .n{font-family:var(--display);font-size:24px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums}
+.stat .l{font-size:12px;color:var(--muted)}
+.ev{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ev li{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.chip{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)} .chip.warn{background:var(--warn-bg);color:var(--warn)} .chip.bad{background:var(--bad-bg);color:var(--bad)} .chip.info{background:var(--sky);color:var(--blue)}
+.actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{border:0;border-radius:10px;padding:11px 16px;font:600 14px var(--body);cursor:pointer}
+.btn.primary{background:var(--blue);color:#fff} .btn.ghost{background:var(--sky);color:var(--blue)}
+:root[data-theme="dark"] .btn.primary{color:var(--navy)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.primary{color:var(--navy)}}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.toast{font-size:13px;color:var(--ok);min-height:18px}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.locked{font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:10px 12px;margin-top:14px}
+@media (max-width:900px){.shell{grid-template-columns:1fr} nav{flex-direction:row;flex-wrap:wrap;padding:12px 16px;height:auto;top:env(safe-area-inset-top,0px)} .brand{padding:0 8px 0 0} nav .foot{display:none} .grid{grid-template-columns:1fr} .stats{grid-template-columns:1fr 1fr 1fr}}
+@media (max-width:520px){.row2,.stats{grid-template-columns:1fr} h1{font-size:26px}}
+@media (prefers-reduced-motion:no-preference){.bar .transit,.bar .hold{transition:width .4s ease}}
+</style>
+
+<div class="shell">
+<nav aria-label="Main">
+  <div class="brand"><svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M16 3 28 10C23.5 10.6 18.8 12.6 16 17 13.2 12.6 8.5 10.6 4 10Z" fill="#9DB8FF"/><path d="M4 10C8.5 10.6 13.2 12.6 16 17V30L4 23Z" fill="#2F55E0"/><path d="M28 10C23.5 10.6 18.8 12.6 16 17V30L28 23Z" fill="#0C24AC"/></svg>Bleuye</div>
+  <a href="#decide" class="on">Ship decision</a>
+  <a href="#library">Validation library</a>
+  <a href="#recent">Shipments</a>
+  <a href="#recent">Sustainability</a>
+  <div class="foot">Westside Pharmacy<br>Mock data for illustration</div>
+  <div class="exit"><a href="demos.html">All demos</a><button id="logout">Log out</button></div>
+</nav>
+
+<main>
+  <div class="top" id="decide">
+    <div>
+      <div class="eyebrow">Route Desk · decision engine</div>
+      <h1>Can this order go by ground?</h1>
+      <div class="mock">Mock platform. Lanes, reports and numbers are illustrative examples.</div>
+    </div>
+    <div class="plan" role="group" aria-label="Plan">
+      <button id="planPlug" aria-pressed="false">Plug-in · $33/mo</button>
+      <button id="planFull" aria-pressed="true">Full stack</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="inTitle">
+      <h2 id="inTitle">1 · Tell us what you're shipping</h2>
+      <div class="field"><label for="product">Product</label>
+        <select id="product">
+          <option value="glp1">Compounded GLP-1 vial · 2 mL · 2–8 °C</option>
+          <option value="pep">Peptide vials ×2 · 2–8 °C</option>
+          <option value="ins">Insulin pens ×3 · 2–8 °C</option>
+          <option value="frz">Frozen pet food · 4 kg · ≤ −18 °C</option>
+        </select></div>
+      <div class="field"><label for="pack">Packaging</label>
+        <select id="pack">
+          <option value="b48">Bleuye 48 h shipper</option>
+          <option value="b96" selected>Bleuye 96 h shipper</option>
+          <option value="b7d">Bleuye 7-day shipper</option>
+          <option value="own">Your packaging · EPS kit 1.5" (uploaded)</option>
+        </select></div>
+      <div class="upload" id="ownBox" hidden><span class="chip info">SPEC</span><span><b>EPS_kit_spec.pdf</b> · 1.5" walls, 2 gel packs, 0.9 L payload · uploaded Oct 12</span></div>
+      <div class="row2">
+        <div class="field"><label for="lane">Route</label>
+          <select id="lane">
+            <option value="lasea">Los Angeles → Seattle</option>
+            <option value="laphx">Los Angeles → Phoenix</option>
+            <option value="dalchi">Dallas → Chicago</option>
+            <option value="miabos">Miami → Boston</option>
+          </select></div>
+        <div class="field"><label for="season">Ship month</label>
+          <select id="season">
+            <option value="shoulder">October</option>
+            <option value="summer" selected>July</option>
+            <option value="winter">January</option>
+          </select></div>
+      </div>
+      <div class="field"><label for="carrier">Carrier and service</label>
+        <select id="carrier">
+          <option value="upsg">UPS Ground</option>
+          <option value="fdxg">FedEx Ground</option>
+          <option value="upsa">UPS Next Day Air</option>
+        </select></div>
+    </section>
+
+    <section class="card" aria-labelledby="outTitle" aria-live="polite">
+      <h2 id="outTitle">2 · Bleuye's recommendation</h2>
+      <div class="verdict" id="verdict"><span class="eyebrow" id="vTag">Decision</span><span class="v" id="vText">—</span><p id="vWhy"></p></div>
+      <div class="margin"><label>Hold time vs time in transit</label></div>
+      <div class="bar" aria-hidden="true"><div class="hold" id="holdBar"></div><div class="transit" id="transitBar"></div></div>
+      <div class="legend"><span id="lTransit"></span><span id="lHold"></span></div>
+      <div class="stats">
+        <div class="stat"><div class="n" id="sSave">—</div><div class="l" id="sSaveL">saved vs overnight</div></div>
+        <div class="stat"><div class="n" id="sCo2">—</div><div class="l">kg CO₂e avoided</div></div>
+        <div class="stat"><div class="n" id="sLoop">—</div><div class="l">after delivery</div></div>
+      </div>
+      <ul class="ev" id="evidence"></ul>
+      <div class="locked" id="lockNote" hidden>On the plug-in plan you keep your own packaging and carrier. Labels, tracking and take-back come with the full stack.</div>
+      <div class="actions">
+        <button class="btn primary" id="approve">Approve and save to library</button>
+        <button class="btn ghost" id="label">Create ground label</button>
+      </div>
+      <div class="toast" id="toast" role="status"></div>
+    </section>
+  </div>
+
+  <section class="card" id="library" aria-labelledby="libTitle">
+    <h2 id="libTitle">Validation library · reused, not redone</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Report</th><th>Packaging</th><th>Profile</th><th>Hold</th><th>Lanes using it</th><th>Status</th></tr></thead>
+      <tbody id="libBody"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card" id="recent" aria-labelledby="recTitle">
+    <h2 id="recTitle">Recent shipments</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Order</th><th>Route</th><th>Service</th><th>Min / max</th><th>Packaging after</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>BL-0412</td><td>LA → Seattle</td><td>UPS Ground · 2 d 1 h</td><td>3.9 / 6.1 °C</td><td>Returned at Corner Café</td><td><span class="chip ok">IN RANGE</span></td></tr>
+        <tr><td>BL-0413</td><td>LA → Phoenix</td><td>UPS Ground · 1 d 3 h</td><td>4.2 / 5.8 °C</td><td>Awaiting drop-off</td><td><span class="chip ok">IN RANGE</span></td></tr>
+        <tr><td>BL-0409</td><td>Dallas → Chicago</td><td>FedEx Ground · 2 d 6 h</td><td>3.1 / 7.4 °C</td><td>Remade into panels</td><td><span class="chip ok">IN RANGE</span></td></tr>
+        <tr><td>BL-0401</td><td>Miami → Boston</td><td>UPS Next Day Air</td><td>2.8 / 5.2 °C</td><td>Single-use foam</td><td><span class="chip info">AIR · NO GROUND DATA</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  // Illustrative lane data: ground transit hours and air-ground cost gap at list prices
+  const LANES={lasea:{name:'LA → Seattle',g:52,mi:1135,air:117.6,gr:16.9,trips:212},
+               laphx:{name:'LA → Phoenix',g:28,mi:370,air:82.4,gr:12.1,trips:96},
+               dalchi:{name:'Dallas → Chicago',g:54,mi:925,air:109.8,gr:15.7,trips:41},
+               miabos:{name:'Miami → Boston',g:76,mi:1500,air:121.3,gr:18.2,trips:0}};
+  // Hold hours by packaging and season profile (validated reports, illustrative)
+  const PACK={b48:{name:'Bleuye 48 h',hold:{shoulder:60,summer:48,winter:72},rep:'VR-0231',bleuye:true,frz:false},
+              b96:{name:'Bleuye 96 h',hold:{shoulder:110,summer:96,winter:120},rep:'VR-0244',bleuye:true,frz:false},
+              b7d:{name:'Bleuye 7-day',hold:{shoulder:190,summer:168,winter:200},rep:'VR-0250',bleuye:true,frz:false},
+              own:{name:'Your EPS kit',hold:{shoulder:40,summer:28,winter:48},rep:'CU-0007',bleuye:false,frz:false}};
+  const SEASON={shoulder:'ISTA 7E shoulder',summer:'ISTA 7E summer',winter:'ISTA 7E winter'};
+  let plan='full';
+
+  const LIB=[
+    ['VR-0231','Bleuye 48 h shipper','ISTA 7E summer + shoulder','48–60 h','LA→PHX, regional 1–2 day','ok','VALIDATED'],
+    ['VR-0244','Bleuye 96 h shipper','ISTA 7E summer','96 h','LA→SEA, DAL→CHI','warn','LAB TEST BOOKED'],
+    ['VR-0250','Bleuye 7-day shipper','ISTA 7E summer','168 h','MIA→BOS, weekend holds','info','IN DESIGN'],
+    ['CU-0007','Your EPS kit (uploaded)','Customer report, winter','28–48 h','LA→PHX','info','CUSTOMER EVIDENCE'],
+    ['VR-0198','Bleuye Frozen','−18 °C dry-ice profile','48 h','—','info','DRAFT']
+  ];
+  $('libBody').innerHTML=LIB.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td><span class="chip ${r[5]}">${r[6]}</span></td></tr>`).join('');
+
+  function decide(){
+    const prod=$('product').value, pk=PACK[$('pack').value], ln=LANES[$('lane').value], s=$('season').value, car=$('carrier').value;
+    $('ownBox').hidden = $('pack').value!=='own';
+    const air = car==='upsa';
+    const transit = air?20:ln.g;
+    const hold = pk.hold[s];
+    const buffer = 12;
+    const margin = hold - transit;
+    let cls,tag,txt,why;
+    const ev=[];
+    if(prod==='frz'){
+      cls='bad';tag='Not supported';txt='Flagged for review';
+      why='No validated frozen configuration in your library yet. A Bleuye engineer reviews this before anything ships.';
+      ev.push(['bad','NO EVIDENCE','No −18 °C report matches this packaging.']);
+    } else if(air){
+      cls='warn';tag='Air selected';txt='Overnight air';
+      why=margin>=buffer&&ln.trips>0?`This lane is validated for ground. Switching saves about $${Math.round(ln.air-ln.gr)} on this order.`:'Air is the safe choice for this lane until we have ground evidence.';
+      ev.push(['info','SERVICE','Next Day Air, ~20 h door to door.']);
+    } else if(ln.trips===0){
+      cls='warn';tag='Needs review';txt='No ground data yet';
+      why=`We have no logged ground trips on ${ln.name}. Ship by air and add loggers to build the lane, or request a lane study.`;
+      ev.push(['warn','LANE DATA','0 logged trips on this route.']);
+    } else if(margin>=buffer){
+      cls='ok';tag='Approved';txt=`${car==='fdxg'?'FedEx':'UPS'} Ground`;
+      why=`Holds ${hold} h against ~${transit} h in transit: ${margin} h of margin, above our ${buffer} h minimum.`;
+    } else if(margin>=0){
+      cls='warn';tag='Needs review';txt='Ground, with review';
+      why=`Only ${margin} h of margin. Below our ${buffer} h minimum, so a person signs off before it ships.`;
+    } else {
+      cls='bad';tag='Not approved';txt='Ship overnight';
+      why=`Holds ${hold} h but transit is ~${transit} h. Ground would run out of cold ${-margin} h early.`;
+    }
+    if(prod!=='frz'){
+      ev.push([pk.bleuye?'ok':'info',pk.rep,`${pk.name} · ${SEASON[s]} · ${hold} h at 2–8 °C${pk.bleuye?'':' (your report)'}`]);
+      if(ln.trips>0) ev.push(['ok','LANE',`${ln.trips} logged trips on ${ln.name}, ground transit p95 ${ln.g} h`]);
+    }
+    const v=$('verdict'); v.className='verdict '+cls;
+    $('vTag').textContent=tag; $('vText').textContent=txt; $('vWhy').textContent=why;
+    const max=Math.max(hold,transit,1)*1.1;
+    $('holdBar').style.width=(hold/max*100)+'%'; $('transitBar').style.width=(transit/max*100)+'%';
+    $('lTransit').textContent=`Transit ~${transit} h`; $('lHold').textContent=`Packaging holds ${prod==='frz'?'—':hold+' h'}`;
+    const ground = cls==='ok' || (cls==='warn' && !air && ln.trips>0 && margin>=0);
+    const save = ground? ln.air-ln.gr : 0;
+    $('sSave').textContent = ground?`$${Math.round(save)}`:'$0';
+    $('sSaveL').textContent = ground?'saved vs overnight':'ground not used';
+    // Illustrative: 1.4 kg parcel, air ~1.1 and road ~0.1 kg CO2e per tonne-km
+    const co2 = ground? (ln.mi*1.609*0.0014*(1.1-0.1)) : 0;
+    $('sCo2').textContent = co2.toFixed(1);
+    $('sLoop').textContent = pk.bleuye && plan==='full' ? 'Take-back' : 'Bin';
+    $('evidence').innerHTML=ev.map(e=>`<li><span class="chip ${e[0]}">${e[1]}</span><span>${e[2]}</span></li>`).join('');
+    $('lockNote').hidden = plan!=='plug';
+    $('label').disabled = plan==='plug' || !ground;
+    $('approve').disabled = cls==='bad';
+    $('toast').textContent='';
+  }
+  function setPlan(p){
+    plan=p; $('planPlug').setAttribute('aria-pressed',p==='plug'); $('planFull').setAttribute('aria-pressed',p==='full');
+    if(p==='plug'){ $('pack').value='own'; } decide();
+  }
+  ['product','pack','lane','season','carrier'].forEach(id=>$(id).addEventListener('change',decide));
+  $('planPlug').addEventListener('click',()=>setPlan('plug'));
+  $('planFull').addEventListener('click',()=>setPlan('full'));
+  $('approve').addEventListener('click',()=>{$('toast').textContent='Saved to your validation library. Next time this product and lane are approved instantly.';});
+  $('label').addEventListener('click',()=>{$('toast').textContent='Ground label created (mock). Tracking and patient texts start at first scan.';});
+  $('logout').addEventListener('click',()=>{try{sessionStorage.removeItem('bleuye-demo')}catch(_){} location.href='login.html';});
+  decide();
+})();
+</script>
+
+</body></html>
